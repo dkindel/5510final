@@ -1,4 +1,5 @@
-package finalproj.locks;
+package fchm;
+
 
 public class FCHMThread extends Thread {
 	public static int ID_GEN;
@@ -11,8 +12,7 @@ public class FCHMThread extends Thread {
 	}
 
 	public void run(){
-		Record rec = new Record();
-		rec.value = id;
+
 	}
 	
 	public int getThreadId(){

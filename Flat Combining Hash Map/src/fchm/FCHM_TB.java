@@ -1,4 +1,4 @@
-package finalproj.locks;
+package fchm;
 
 
 import java.util.concurrent.atomic.AtomicLong;
