@@ -1,6 +1,6 @@
 package finalproj.locks;
 
 public interface Lock {
-	public void lock();
-	public void unlock();
+	public boolean lock();
+	public boolean unlock();
 }
