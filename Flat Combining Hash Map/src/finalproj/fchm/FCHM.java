@@ -1,4 +1,4 @@
-package fchm;
+package finalproj.fchm;
 
 
 public class FCHM{
