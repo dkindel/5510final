@@ -1,19 +1,33 @@
 package finalproj.fchm;
 
-import java.util.concurrent.atomic.AtomicReference;
 
-public class Record {
-	public AtomicReference<Record> next;
-	public int value;
+
+public class Record<T> {
+	public Record<T> next;
 	public long age;
+	public boolean active;
+	public Request req;
 	
-	public Record(int val){
-		value = val;
-		age = System.currentTimeMillis(); //sets the age 
+	class Request{
+		int op; //0 for add
+				//1 for remove
+				//2 for contains
+		T param;
+		boolean done;
+		boolean retval;
+		
+		public Request(){
+			done = true;		//true at first so the combiner doesn't pick it up
+			retval = false;
+			op = -1;
+		}
 	}
 	
 	public Record(){
-		age = System.currentTimeMillis(); //sets the age 
+		age = 0;
+		next = null;
+		active = false;
+		req = new Request();
 	}
 	
 }
