@@ -7,16 +7,15 @@ import finalproj.locks.RejectLock;
 
 public class FCHM<T>{
 	private ThreadLocal<Record<T>> rec = null;
-	private AtomicReference<Record<T>> head;
-	private RejectLock lock;
+	private AtomicReference<Record<T>> head = new AtomicReference<Record<T>>();
+	private RejectLock lock = new RejectLock();
 	
 	public FCHM(){
-		/*rec = new ThreadLocal<Record>(){
-			protected Record initialValue(){
-				return new Record();
+		rec = new ThreadLocal<Record<T>>(){
+			protected Record<T> initialValue(){
+				return new Record<T>();
 			}
-		};*/
-		
+		};
 	}
 	
 	public void add(T val){
@@ -31,44 +30,55 @@ public class FCHM<T>{
 		return runFunc(2, val);
 	}
 	
-	class ReturnClass{
-		boolean retval = false;
-		boolean is_now_inactive = false;
-	}
 	
 	private boolean runFunc(int op, T val){
 		while(true){
-			if((rec == null) && (rec.get().active)){
-				ReturnClass ret = active(op, val);
-				if(ret.is_now_inactive)
-					continue; //it's now inactive, so we must set it active and continue
-				else{
-					return ret.retval;
-				}
+			if(rec.get().added && rec.get().active){
+				return active(op, val);
 			}else{
 				set_active();
 			}
 		}
 	}
 	
-	private ReturnClass active(int op, T val){
-		ReturnClass ret = new ReturnClass(); //set this up to return
+	private boolean active(int op, T val){
+		//ReturnClass ret = new ReturnClass(); //set this up to return
 		rec.get().req.op = op;
 		rec.get().req.param = val;
 		rec.get().req.done = false;
-		if(!lock.lock()){ //NOT the combiner
-			
+		while(true){
+			boolean locked = true;
+			if(!lock.lock()){ //NOT the combiner
+				while(!rec.get().req.done &&
+						rec.get().active &&
+						(locked = lock.isLocked()));
+			}
+			else{//AM the combiner
+				amLockholder();
+				lock.unlock();
+				//don't worry about locked. 
+			}
+			if(!rec.get().active){
+				if(rec.get().req.done){ //managed to finish before inactive
+					return rec.get().req.retval;
+				}
+				else{ //just inactive. flip the bit
+					set_active();
+					continue;
+				}
+			}
+			//if lockholder, won't enter.  if came unlocked, and spinng, we try to grab it
+			else if(!locked){
+				continue;
+			}
+			else{//returned
+				return rec.get().req.retval;
+			}
 		}
-		else{//AM the combiner
-			amLockholder(ret);
-		}
-		return ret;
 	}
 	
-	private void amLockholder(ReturnClass ret){
+	private void amLockholder(){
 		scanCombineApply();
-		ret.is_now_inactive = !rec.get().req.done && !rec.get().active; //doesn't matter if inactive
-		ret.retval = rec.get().req.retval;
 	}
 	
 	private void scanCombineApply() {
@@ -76,12 +86,8 @@ public class FCHM<T>{
 	}
 
 	private void set_active(){
-		if(rec == null){
-			rec = new ThreadLocal<Record<T>>(){
-				protected Record<T> initialValue(){
-					return new Record<T>();
-				}
-			};
+		if(!rec.get().added){
+			rec.get().added = true;
 			rec.get().active = true;
 			while(true){
 				Record<T> headref = head.get();

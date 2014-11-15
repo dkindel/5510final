@@ -7,14 +7,15 @@ public class Record<T> {
 	public long age;
 	public boolean active;
 	public Request req;
+	public boolean added; //added to the list
 	
 	class Request{
-		int op; //0 for add
+		public int op; //0 for add
 				//1 for remove
 				//2 for contains
-		T param;
-		boolean done;
-		boolean retval;
+		public T param;
+		public boolean done;
+		public boolean retval;
 		
 		public Request(){
 			done = true;		//true at first so the combiner doesn't pick it up

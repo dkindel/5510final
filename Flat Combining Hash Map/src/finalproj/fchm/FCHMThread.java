@@ -12,7 +12,7 @@ public class FCHMThread extends Thread {
 	}
 
 	public void run(){
-		hashmap.add(1);
+		hashmap.add(id);
 	}
 	
 	public int getThreadId(){

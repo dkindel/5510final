@@ -4,12 +4,11 @@ package finalproj.fchm;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class FCHM_TB {
-	static boolean containsCleanup = true;
-	static final int NUM_THREADS = 16;
+	static final int NUM_THREADS = 2;
 	
 	
 	public static void main(String args[]){
-		FCHM map= new FCHM();
+		FCHM<Integer> map= new FCHM<Integer>();
 		
 		AtomicLong throughput = new AtomicLong(0);
 		FCHMThread[] threads = new FCHMThread[NUM_THREADS];

@@ -27,5 +27,9 @@ public class RejectLock implements Lock {
 		int threadid = ((FCHMThread) Thread.currentThread()).getThreadId();
 		return lockholder.compareAndSet(threadid, -1);
 	}
+	
+	public boolean isLocked(){
+		return lockholder.get() == -1;
+	}
 
 }
