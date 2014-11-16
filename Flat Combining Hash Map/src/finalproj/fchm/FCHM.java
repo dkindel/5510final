@@ -1,50 +1,55 @@
 package finalproj.fchm;
 
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import finalproj.locks.RejectLock;
 
 
-public class FCHM<T>{
-	private ThreadLocal<Record<T>> rec = null;
-	private AtomicReference<Record<T>> head = new AtomicReference<Record<T>>();
+public class FCHM<K,V>{
+	private ThreadLocal<Record<K,V>> rec = null;
+	private AtomicReference<Record<K,V>> head = new AtomicReference<Record<K,V>>();
 	private RejectLock lock = new RejectLock();
+	private long count = 0;
+	
+	HashMap<K,V> map = new HashMap<K,V>(50);
 	
 	public FCHM(){
-		rec = new ThreadLocal<Record<T>>(){
-			protected Record<T> initialValue(){
-				return new Record<T>();
+		rec = new ThreadLocal<Record<K,V>>(){
+			protected Record<K,V> initialValue(){
+				return new Record<K,V>();
 			}
 		};
 	}
 	
-	public void add(T val){
-		runFunc(0, val);
+	public V put(K key, V val){
+		return runFunc(0, key, val);
 	}
 	
-	public void remove(T val){
-		runFunc(1, val);
+	public V remove(K key){
+		return runFunc(1, key, null);
 	}
 
-	public boolean contains(T val){
-		return runFunc(2, val);
+	public V get(K key){
+		return runFunc(2, key, null);
 	}
 	
 	
-	private boolean runFunc(int op, T val){
+	private V runFunc(int op, K key,V val){
 		while(true){
-			if(rec.get().added && rec.get().active){
-				return active(op, val);
+			rec.get().req.op = op;
+			rec.get().req.key = key;
+			rec.get().req.value = val;
+			if(rec.get().active){
+				return active();
 			}else{
 				set_active();
 			}
 		}
 	}
 	
-	private boolean active(int op, T val){
+	private V active(){
 		//ReturnClass ret = new ReturnClass(); //set this up to return
-		rec.get().req.op = op;
-		rec.get().req.param = val;
 		rec.get().req.done = false;
 		while(true){
 			boolean locked = true;
@@ -59,15 +64,16 @@ public class FCHM<T>{
 				//don't worry about locked. 
 			}
 			if(!rec.get().active){
-				if(rec.get().req.done){ //managed to finish before inactive
-					return rec.get().req.retval;
-				}
-				else{ //just inactive. flip the bit
+				//if(rec.get().req.done){ //managed to finish before inactive
+				//	return rec.get().req.retval;
+				//}
+				//else{ //just inactive. flip the bit
 					set_active();
 					continue;
-				}
+				//}
 			}
-			//if lockholder, won't enter.  if came unlocked, and spinng, we try to grab it
+			//if lockholder, won't enter.  if came unlocked, and spinng, 
+			//we try to grab it
 			else if(!locked){
 				continue;
 			}
@@ -78,26 +84,42 @@ public class FCHM<T>{
 	}
 	
 	private void amLockholder(){
+		count++;
 		scanCombineApply();
 	}
 	
 	private void scanCombineApply() {
-		
+		Record<K,V> curr = head.get();
+		while((curr = curr.next) != null){
+			if(!curr.req.done){ //means we need to execute
+				switch(curr.req.op){
+				case 0:
+					curr.req.retval = map.put(curr.req.key, curr.req.value);
+					break;
+				case 1:
+					curr.req.retval = map.remove(curr.req.key);
+					break;
+				case 2: 
+					curr.req.retval = map.get(curr.req.key);
+					break;
+				default:
+					System.err.println("I have no idea how this happened but a " +
+							"bad op was passed.  We'll pass over this one.");
+					break;
+				}
+			}
+			curr.age = count;
+		}
 	}
 
 	private void set_active(){
-		if(!rec.get().added){
-			rec.get().added = true;
-			rec.get().active = true;
-			while(true){
-				Record<T> headref = head.get();
-				rec.get().next = headref;
-				if(head.compareAndSet(headref, rec.get()))
-					break;
-			}
-		}else{
-			rec.get().active = true;
+		while(true){
+			Record<K,V> headref = head.get();
+			rec.get().next = headref;
+			if(head.compareAndSet(headref, rec.get()))
+				break;
 		}
+		rec.get().active = true;
 	}
 	
 }

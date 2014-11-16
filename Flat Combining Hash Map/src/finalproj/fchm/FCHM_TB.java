@@ -8,7 +8,7 @@ public class FCHM_TB {
 	
 	
 	public static void main(String args[]){
-		FCHM<Integer> map= new FCHM<Integer>();
+		FCHM<Integer, String> map= new FCHM<Integer, String>();
 		
 		AtomicLong throughput = new AtomicLong(0);
 		FCHMThread[] threads = new FCHMThread[NUM_THREADS];
