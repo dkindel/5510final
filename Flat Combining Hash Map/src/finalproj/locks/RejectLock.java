@@ -4,8 +4,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import finalproj.fchm.FCHMThread;
 
 public class RejectLock implements Lock {
-	private AtomicInteger lockholder = new AtomicInteger(-1);
+	private AtomicInteger lockholder;
 	
+	
+	public RejectLock(){
+		lockholder = new AtomicInteger(-1);
+	}
 	/**
 	 * Lock attempts to change lock holder from -1 to the thread id.  
 	 * 
@@ -16,6 +20,7 @@ public class RejectLock implements Lock {
 	@Override
 	public boolean lock() {
 		int threadid = ((FCHMThread) Thread.currentThread()).getThreadId();
+		//System.out.println("threadid: " + threadid + " and lockholder " + lockholder.get());
 		return lockholder.compareAndSet(-1, threadid);
 	}
 
@@ -29,7 +34,12 @@ public class RejectLock implements Lock {
 	}
 	
 	public boolean isLocked(){
-		return lockholder.get() == -1;
+		boolean success = !lockholder.compareAndSet(-1, -1);
+		return success;
+	}
+	
+	public int readHash(){
+		return lockholder.hashCode();
 	}
 
 }

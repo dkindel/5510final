@@ -4,7 +4,7 @@ package finalproj.fchm;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class FCHM_TB {
-	static final int NUM_THREADS = 2;
+	static final int NUM_THREADS = 4;
 	
 	
 	public static void main(String args[]){

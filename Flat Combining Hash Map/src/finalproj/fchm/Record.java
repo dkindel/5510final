@@ -7,6 +7,7 @@ public class Record<K,V> {
 	public long age;
 	public boolean active;
 	public Request req;
+	public boolean added;
 	
 	class Request{
 		public int op; //0 for add
