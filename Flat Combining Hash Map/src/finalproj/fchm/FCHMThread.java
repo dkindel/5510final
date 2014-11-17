@@ -16,7 +16,28 @@ public class FCHMThread extends Thread {
 	}
 
 	public void run(){
-		if(id == 0){
+		long t= System.currentTimeMillis();
+		long end = t+5000;
+		while(System.currentTimeMillis() < end) {
+			hashmap.put((int) t, "this");
+			hashmap.remove((int)t-1);
+			hashmap.get((int)t);
+		}
+		System.out.println("Thread " + id + " has started.");
+
+		
+		//run for 2s getting measurements
+		t= System.currentTimeMillis();
+		end = t+2000;
+		while(System.currentTimeMillis() < end) {
+			hashmap.put((int) t, "this");
+			hashmap.remove((int)t-1);
+			hashmap.get((int)t);
+		}
+		
+		System.out.println("Thread " + id + " has finished.");
+		
+		/*if(id == 0){
 			hashmap.put(0, "Zero");
 			hashmap.put(1, "One");
 			hashmap.put(2, "Two");
@@ -53,7 +74,7 @@ public class FCHMThread extends Thread {
 			hashmap.remove(12);
 			hashmap.printList();
 			hashmap.print();
-		}
+		}*/
 	}
 	
 	public int getThreadId(){

@@ -15,6 +15,8 @@ public class FCHM<K,V>{
 	private RejectLock lock;
 	private long count = 0;
 	
+	private static final int CLEANUP_COUNT = 20;
+	
 	
 	
 	private HashMap<K,V> map = new HashMap<K,V>(50);
@@ -95,14 +97,14 @@ public class FCHM<K,V>{
 				//don't worry about locked. 
 			}
 			if(!rec.get().active){
-				System.out.println("returning because inactive");
+				//System.out.println("returning because inactive");
 				set_active();
 				continue;
 			}
 			//if lockholder, won't enter.  if came unlocked, and spinning, 
 			//we try to grab it
 			else if(!locked){
-				System.out.println("returning because not locked");
+				//System.out.println("returning because not locked");
 				continue;
 			}
 			else{//returned
@@ -114,6 +116,15 @@ public class FCHM<K,V>{
 	private void amLockholder(){
 		count++;
 		scanCombineApply();
+		removeOldRecords();
+	}
+	
+	private void removeOldRecords(){
+		Record<K,V> curr = head.get();
+		while(curr != null){
+			//if(curr.age < )
+			curr = curr.next;
+		}
 	}
 	
 	private void scanCombineApply() {
@@ -122,7 +133,7 @@ public class FCHM<K,V>{
 			if(!curr.req.done){ //means we need to execute
 				switch(curr.req.op){
 				case 0:
-					System.out.println("putting " + curr.req.key + " and " + curr.req.value);
+					//System.out.println("putting " + curr.req.key + " and " + curr.req.value);
 					curr.req.retval = map.put(curr.req.key, curr.req.value);
 					break;
 				case 1:
@@ -144,9 +155,9 @@ public class FCHM<K,V>{
 							"bad op was passed.  We'll pass over this one.");
 					break;
 				}
+				curr.age = count;
 				curr.req.done = true;
 			}
-			curr.age = count;
 			curr = curr.next;
 		}
 	}
