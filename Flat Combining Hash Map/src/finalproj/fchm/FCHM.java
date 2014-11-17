@@ -14,8 +14,10 @@ public class FCHM<K,V>{
 	private AtomicReference<Record<K,V>> head;
 	private RejectLock lock;
 	private long count = 0;
+	private long cleanedupat = 0;
 	
 	private static final int CLEANUP_COUNT = 20;
+	private static final int AGE_DIFFERENCE = 20;
 	
 	
 	
@@ -116,14 +118,26 @@ public class FCHM<K,V>{
 	private void amLockholder(){
 		count++;
 		scanCombineApply();
-		removeOldRecords();
+		if((count - cleanedupat) >= CLEANUP_COUNT){
+			removeOldRecords();
+		}
 	}
 	
 	private void removeOldRecords(){
 		Record<K,V> curr = head.get();
+		Record<K,V> pred;
+		
 		while(curr != null){
-			//if(curr.age < )
-			curr = curr.next;
+			pred = curr;
+			curr = curr.next; //skip first node
+			
+			while((curr != null) && curr.age < (count - AGE_DIFFERENCE)){
+				pred.next = curr.next;
+				curr.next = null;
+				curr.added = false;
+				curr.active = false;
+				curr = curr.next;
+			}
 		}
 	}
 	
