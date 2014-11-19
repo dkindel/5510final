@@ -1,19 +1,24 @@
 package map;
 
-import finalproj.fchm.FCHM;
+import java.util.concurrent.atomic.AtomicLong;
+
 
 
 public class HMThread extends Thread {
 	public static int ID_GEN;
 	private int id;
-	private FCHM<Integer, String> hashmap;
+	private HM<Integer, String> hashmap;
+	AtomicLong tput;
 	
-	public HMThread(FCHM<Integer, String> map){
+	public HMThread(HM<Integer, String> map, AtomicLong throughput){
 		id = ID_GEN++;
 		hashmap = map;
+		tput = throughput;
 	}
 
 	public void run(){
+		int throughput = 0;
+		
 		long t= System.currentTimeMillis();
 		long end = t+5000;
 		while(System.currentTimeMillis() < end) {
@@ -35,7 +40,10 @@ public class HMThread extends Thread {
 			hashmap.get((int)t);
 			hashmap.get((int)t);
 			hashmap.get((int)t);
+			throughput += 5;
 		}
+		
+		tput.addAndGet(throughput);
 		
 		System.out.println("Thread " + id + " has finished.");
 		

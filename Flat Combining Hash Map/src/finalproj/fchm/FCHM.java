@@ -5,11 +5,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
-
+import map.HM;
 import finalproj.locks.RejectLock;
 
 
-public class FCHM<K,V>{
+public class FCHM<K,V> implements HM<K, V>{
 	private ThreadLocal<Record<K,V>> rec = null;
 	private AtomicReference<Record<K,V>> head;
 	private RejectLock lock;
