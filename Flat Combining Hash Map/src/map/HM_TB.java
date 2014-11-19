@@ -1,9 +1,11 @@
-package finalproj.fchm;
+package map;
 
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class FCHM_TB {
+import finalproj.fchm.FCHM;
+
+public class HM_TB {
 	static final int NUM_THREADS = 4;
 	
 	
@@ -11,13 +13,13 @@ public class FCHM_TB {
 		FCHM<Integer, String> map= new FCHM<Integer, String>();
 		
 		AtomicLong throughput = new AtomicLong(0);
-		FCHMThread[] threads = new FCHMThread[NUM_THREADS];
+		HMThread[] threads = new HMThread[NUM_THREADS];
 		for(int i = 0; i < NUM_THREADS; i++){
-			threads[i] = new FCHMThread(map);
+			threads[i] = new HMThread(map);
 			threads[i].start();
 		}
 		
-		for(FCHMThread thread : threads){
+		for(HMThread thread : threads){
 			try {
 				thread.join();
 			} catch (InterruptedException e) {

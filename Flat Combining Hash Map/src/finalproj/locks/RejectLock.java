@@ -1,7 +1,7 @@
 package finalproj.locks;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import finalproj.fchm.FCHMThread;
+import map.HMThread;
 
 public class RejectLock implements Lock {
 	private AtomicInteger lockholder;
@@ -19,7 +19,7 @@ public class RejectLock implements Lock {
 	 */
 	@Override
 	public boolean lock() {
-		int threadid = ((FCHMThread) Thread.currentThread()).getThreadId();
+		int threadid = ((HMThread) Thread.currentThread()).getThreadId();
 		//System.out.println("threadid: " + threadid + " and lockholder " + lockholder.get());
 		return lockholder.compareAndSet(-1, threadid);
 	}
@@ -29,7 +29,7 @@ public class RejectLock implements Lock {
 	 */
 	@Override
 	public boolean unlock() {
-		int threadid = ((FCHMThread) Thread.currentThread()).getThreadId();
+		int threadid = ((HMThread) Thread.currentThread()).getThreadId();
 		return lockholder.compareAndSet(threadid, -1);
 	}
 	

@@ -1,16 +1,14 @@
-package finalproj.fchm;
+package map;
 
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
+import finalproj.fchm.FCHM;
 
 
-public class FCHMThread extends Thread {
+public class HMThread extends Thread {
 	public static int ID_GEN;
 	private int id;
 	private FCHM<Integer, String> hashmap;
-	private static CyclicBarrier bar = new CyclicBarrier(4);
 	
-	public FCHMThread(FCHM<Integer, String> map){
+	public HMThread(FCHM<Integer, String> map){
 		id = ID_GEN++;
 		hashmap = map;
 	}
@@ -22,6 +20,8 @@ public class FCHMThread extends Thread {
 			hashmap.put((int) t, "this");
 			hashmap.remove((int)t-1);
 			hashmap.get((int)t);
+			hashmap.get((int)t);
+			hashmap.get((int)t);
 		}
 		System.out.println("Thread " + id + " has started.");
 
@@ -32,6 +32,8 @@ public class FCHMThread extends Thread {
 		while(System.currentTimeMillis() < end) {
 			hashmap.put((int) t, "this");
 			hashmap.remove((int)t-1);
+			hashmap.get((int)t);
+			hashmap.get((int)t);
 			hashmap.get((int)t);
 		}
 		
