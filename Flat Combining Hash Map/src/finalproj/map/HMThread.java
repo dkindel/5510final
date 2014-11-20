@@ -1,4 +1,4 @@
-package map;
+package finalproj.map;
 
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;

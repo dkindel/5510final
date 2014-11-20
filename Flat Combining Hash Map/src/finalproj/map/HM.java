@@ -1,4 +1,4 @@
-package map;
+package finalproj.map;
 
 public interface HM<K,V> {
 	public V put(K key, V val);

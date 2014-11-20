@@ -1,7 +1,8 @@
 package finalproj.locks;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import map.HMThread;
+
+import finalproj.map.HMThread;
 
 public class RejectLock implements Lock {
 	private AtomicInteger lockholder;

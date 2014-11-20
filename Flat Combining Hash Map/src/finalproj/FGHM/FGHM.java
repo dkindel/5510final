@@ -6,7 +6,8 @@ import java.util.Map.Entry;
 import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantLock;
 
-import map.HM;
+import finalproj.map.HM;
+
 
 /**
  * Implements a fine grained hash map
