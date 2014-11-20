@@ -132,5 +132,16 @@ public class FGHM<K,V> implements HM<K,V>{
 			hash = hash*-1;
 		return hash;
 	}
+	
+	public void print(){
+		for (HashMap<K,V> bucket : table) {
+			Iterator<Entry<K, V>> it = bucket.entrySet().iterator();
+		    while (it.hasNext()) {
+		        Map.Entry<K,V> pairs = it.next();
+		        System.out.println("Key: " + pairs.getKey() + ". Val: " + pairs.getValue());
+		        it.remove(); // avoids a ConcurrentModificationException
+		    }
+		}
+	}
 
 }
