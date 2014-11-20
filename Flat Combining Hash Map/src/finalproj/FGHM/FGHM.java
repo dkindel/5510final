@@ -28,7 +28,7 @@ public class FGHM<K,V> implements HM<K,V>{
 		lock = new ReentrantLock[capacity]; 
 		for (int i = 0; i < capacity; i++) { 
 			lock[i] = new ReentrantLock(); 
-			table[i] = new HashMap<K,V>(); 
+			table[i] = new HashMap<K,V>(capacity); 
 		}
 	}
 	 

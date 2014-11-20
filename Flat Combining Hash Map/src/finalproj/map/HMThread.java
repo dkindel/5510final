@@ -1,8 +1,8 @@
 package finalproj.map;
 
 import java.util.Random;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
+/*import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;*/
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -13,7 +13,7 @@ public class HMThread extends Thread {
 	private HM<Integer, String> hashmap;
 	AtomicLong tput;
 	
-	private static CyclicBarrier bar = new CyclicBarrier(4);
+	//private static CyclicBarrier bar = new CyclicBarrier(4);
 	
 	public HMThread(HM<Integer, String> map, AtomicLong throughput){
 		id = ID_GEN++;
