@@ -2,16 +2,15 @@ package map;
 
 
 import java.util.concurrent.atomic.AtomicLong;
-
-import FGHM.FGHM;
+import finalproj.FGHM.FGHM;
 
 import finalproj.fchm.FCHM;
 
 public class HM_TB {
-	static final int NUM_THREADS = 32;
-	
 	
 	public static void main(String args[]){
+		int NUM_THREADS = Integer.parseInt(args[0]);
+		
 		FCHM<Integer, String> map= new FCHM<Integer, String>(50);
 		//FGHM<Integer, String> map= new FGHM<Integer, String>(50);
 		
