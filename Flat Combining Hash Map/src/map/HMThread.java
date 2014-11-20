@@ -1,5 +1,6 @@
 package map;
 
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -17,30 +18,45 @@ public class HMThread extends Thread {
 	}
 
 	public void run(){
-		int throughput = 0;
 		
 		long t= System.currentTimeMillis();
 		long end = t+5000;
+		Random rand = new Random();
+		int count = 0;
 		while(System.currentTimeMillis() < end) {
-			hashmap.put((int) t, "this");
-			hashmap.remove((int)t-1);
-			hashmap.get((int)t);
-			hashmap.get((int)t);
-			hashmap.get((int)t);
+			int next = rand.nextInt();
+			int op = count % 100;
+			if(op < 10){
+				hashmap.put(next, new Integer(next).toString());
+			}
+			else if(op == 10){
+				hashmap.remove(next);
+			}
+			else{
+				hashmap.get(next);
+			}
+			count++;
 		}
 		System.out.println("Thread " + id + " has started.");
 
-		
+
+		int throughput = 0;
 		//run for 2s getting measurements
 		t= System.currentTimeMillis();
 		end = t+2000;
 		while(System.currentTimeMillis() < end) {
-			hashmap.put((int) t, "this");
-			hashmap.remove((int)t-1);
-			hashmap.get((int)t);
-			hashmap.get((int)t);
-			hashmap.get((int)t);
-			throughput += 5;
+			int next = rand.nextInt();
+			int op = throughput % 100;
+			if(op < 10){
+				hashmap.put(next, new Integer(next).toString());
+			}
+			else if(op == 10){
+				hashmap.remove(next);
+			}
+			else{
+				hashmap.get(next);
+			}
+			throughput++;
 		}
 		
 		tput.addAndGet(throughput);
