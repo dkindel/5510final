@@ -21,9 +21,10 @@ public class FCHM<K,V> implements HM<K, V>{
 	
 	
 	
-	private HashMap<K,V> map = new HashMap<K,V>(50);
+	private HashMap<K,V> map;
 	
-	public FCHM(){
+	public FCHM(int capacity){
+		map = new HashMap<K,V>(capacity);
 		rec = new ThreadLocal<Record<K,V>>(){
 			protected Record<K,V> initialValue(){
 				return new Record<K,V>();
