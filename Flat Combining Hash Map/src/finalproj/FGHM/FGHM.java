@@ -37,9 +37,6 @@ public class FGHM<K,V> implements HM<K,V>{
 		V retval = null;
 		
 		int keyhash = hash(key) % lock.length;
-		if(keyhash < 0) {
-			System.out.println("keyhash was " + keyhash);
-		}
 		lock[keyhash].lock();
 		try{
 			int tabHash = hash(key) % table.length; 

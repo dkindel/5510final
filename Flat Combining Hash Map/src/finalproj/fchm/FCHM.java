@@ -1,9 +1,9 @@
 package finalproj.fchm;
 
-import java.util.HashMap;
+/*import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Map.Entry;*/
 import java.util.concurrent.atomic.AtomicReference;
 import finalproj.locks.RejectLock;
 import finalproj.map.HM;
@@ -21,10 +21,10 @@ public class FCHM<K,V> implements HM<K, V>{
 	
 	
 	
-	private HashMap<K,V> map;
+	private SequentialHM<K,V> map;
 	
 	public FCHM(int capacity){
-		map = new HashMap<K,V>(capacity);
+		map = new SequentialHM<K,V>(capacity);
 		rec = new ThreadLocal<Record<K,V>>(){
 			protected Record<K,V> initialValue(){
 				return new Record<K,V>();
@@ -158,12 +158,7 @@ public class FCHM<K,V> implements HM<K, V>{
 					curr.req.retval = map.get(curr.req.key);
 					break;
 				case 3:
-				    Iterator<Entry<K, V>> it = map.entrySet().iterator();
-				    while (it.hasNext()) {
-				        Map.Entry<K,V> pairs = it.next();
-				        System.out.println(pairs.getKey() + " = " + pairs.getValue());
-				        it.remove(); // avoids a ConcurrentModificationException
-				    }
+					map.print();
 					break;
 				default:
 					System.err.println("I have no idea how this happened but a " +

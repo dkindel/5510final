@@ -23,7 +23,7 @@ public class HMThread extends Thread {
 
 	public void run(){
 		
-		/*long t= System.currentTimeMillis();
+		long t= System.currentTimeMillis();
 		long end = t+5000;
 		Random rand = new Random();
 		int count = 0;
@@ -66,8 +66,8 @@ public class HMThread extends Thread {
 		tput.addAndGet(throughput);
 		
 		System.out.println("Thread " + id + " has finished.");
-		*/
-
+		
+/*
 		System.out.println("starting thread " + id);
 		if(id == 0){
 			hashmap.put(0, "Zero");
@@ -104,7 +104,7 @@ public class HMThread extends Thread {
 			//hashmap.printList();
 			hashmap.print();
 		}
-		System.out.println("done thread " + id);
+		System.out.println("done thread " + id);*/
 	}
 	
 	public int getThreadId(){
