@@ -47,7 +47,9 @@ public class HMThread extends Thread {
 		
 		System.out.println("Thread " + id + " has finished.");
 		
-		/*if(id == 0){
+
+		/*System.out.println("starting thread " + id);
+		if(id == 0){
 			hashmap.put(0, "Zero");
 			hashmap.put(1, "One");
 			hashmap.put(2, "Two");
@@ -71,20 +73,12 @@ public class HMThread extends Thread {
 			hashmap.put(12, "Twelve");
 			hashmap.put(59, "Fifty Nine");
 		}
-		try {
-			bar.await();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BrokenBarrierException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		if(id == 0) {
 			hashmap.remove(12);
-			hashmap.printList();
-			hashmap.print();
-		}*/
+			//hashmap.printList();
+			//hashmap.print();
+		}
+		System.out.println("done thread " + id);*/
 	}
 	
 	public int getThreadId(){

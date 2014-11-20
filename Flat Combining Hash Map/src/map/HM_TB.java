@@ -12,8 +12,8 @@ public class HM_TB {
 	
 	
 	public static void main(String args[]){
-		//FCHM<Integer, String> map= new FCHM<Integer, String>(50);
-		FGHM<Integer, String> map= new FGHM<Integer, String>(50);
+		FCHM<Integer, String> map= new FCHM<Integer, String>(50);
+		//FGHM<Integer, String> map= new FGHM<Integer, String>(50);
 		
 		AtomicLong throughput = new AtomicLong(0);
 		HMThread[] threads = new HMThread[NUM_THREADS];
