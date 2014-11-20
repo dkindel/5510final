@@ -10,8 +10,24 @@ public class HM_TB {
 	
 	public static void main(String args[]){
 		int NUM_THREADS = Integer.parseInt(args[0]);
+		int map_type = Integer.parseInt(args[1]);
+		int init_capacity = Integer.parseInt(args[2]);
+		System.out.println("Running with " + NUM_THREADS + " threads.");
+		System.out.println("Running with " + init_capacity + " capacity.");
 		
-		FCHM<Integer, String> map= new FCHM<Integer, String>(50);
+		
+		HM<Integer, String> map;
+		if(map_type == 0){
+			System.out.println("Running a Flat-Combining map");
+			map = new FCHM<Integer, String>(init_capacity);
+		}
+		else{
+			System.out.println("Running a Fine Grained map");
+			map= new FGHM<Integer, String>(init_capacity);
+		}
+			
+		
+		//FCHM<Integer, String> map= new FCHM<Integer, String>(50);
 		//FGHM<Integer, String> map= new FGHM<Integer, String>(50);
 		
 		AtomicLong throughput = new AtomicLong(0);
