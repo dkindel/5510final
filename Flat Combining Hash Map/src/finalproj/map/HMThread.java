@@ -11,7 +11,7 @@ public class HMThread extends Thread {
 	public static int ID_GEN;
 	private int id;
 	private HM<Integer, String> hashmap;
-	AtomicLong tput;
+	private AtomicLong tput;
 	
 	//private static CyclicBarrier bar = new CyclicBarrier(4);
 	
@@ -61,11 +61,12 @@ public class HMThread extends Thread {
 				hashmap.get(next);
 			}
 			throughput++;
+			if(System.currentTimeMillis() >= end)
+				System.out.println("tput = " + throughput);
 		}
-		
 		tput.addAndGet(throughput);
 		
-		System.out.println("Thread " + id + " has finished.");
+		System.out.println("Thread " + id + " has finished for time " + (System.currentTimeMillis() - t));
 		
 /*
 		System.out.println("starting thread " + id);

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Iterator;
-import java.util.concurrent.locks.ReentrantLock;
+//import java.util.concurrent.locks.ReentrantLock;
 
 import finalproj.map.HM;
 
@@ -15,7 +15,7 @@ import finalproj.map.HM;
  */
 public class FGHM<K,V> implements HM<K,V>{
 
-	protected ReentrantLock[] lock; 
+	protected Object[] lock; 
 	protected HashMap<K,V>[] table; 
 	private static int largestbucketever = 0; //This keeps track of the largest bucket
 									//that has ever been in this map.  Don't need 
@@ -25,9 +25,9 @@ public class FGHM<K,V> implements HM<K,V>{
 	@SuppressWarnings("unchecked")
 	public FGHM(int capacity) {
 		table = (HashMap<K,V>[]) new HashMap[capacity]; 
-		lock = new ReentrantLock[capacity]; 
+		lock = new Object[capacity]; 
 		for (int i = 0; i < capacity; i++) { 
-			lock[i] = new ReentrantLock(); 
+			lock[i] = new Object(); 
 			table[i] = new HashMap<K,V>(capacity); 
 		}
 	}
@@ -37,18 +37,15 @@ public class FGHM<K,V> implements HM<K,V>{
 		V retval = null;
 		
 		int keyhash = hash(key) % lock.length;
-		lock[keyhash].lock();
-		try{
+		synchronized(lock[keyhash]){
 			int tabHash = hash(key) % table.length; 
 			retval = table[tabHash].put(key, val);
 			if(largestbucketever < table[tabHash].size()){
 				largestbucketever = table[tabHash].size();
 			}
-		}finally{
-			lock[keyhash].unlock();
 		}
 
-		if(largestbucketever > 20)
+		if(largestbucketever > 500)
 			resize();
 		return retval;
 	}
@@ -56,24 +53,18 @@ public class FGHM<K,V> implements HM<K,V>{
 	@Override
 	public V remove(K key) {
 		int keyhash = hash(key) % lock.length;
-		lock[keyhash].lock();
-		try{
+		synchronized(lock[keyhash]){
 			int tabHash = hash(key) % table.length; 
 			return table[tabHash].remove(key);
-		}finally{
-			lock[keyhash].unlock();
 		}
 	}
 
 	@Override
 	public V get(K key) {
 		int keyhash = hash(key) % lock.length;
-		lock[keyhash].lock();
-		try{
+		synchronized(lock[keyhash]){
 			int tabHash = hash(key) % table.length; 
 			return table[tabHash].get(key);
-		}finally{
-			lock[keyhash].unlock();
 		}
 	}
 	
@@ -82,19 +73,19 @@ public class FGHM<K,V> implements HM<K,V>{
 	}
 
 	private void resize(int depth, HashMap<K,V>[] oldTab){
-		lock[depth].lock();
-		try{
+		synchronized(lock[depth]){
 			if (oldTab == table){
 				int next = depth + 1;
 				if (next < lock.length){
 					resize (next, oldTab);
 				}
 				else{
+					System.out.println("resize start");
+					long start = System.currentTimeMillis();
 					sequentialResize();
+					System.out.println("resize end for " + (System.currentTimeMillis() - start));
 				}
 			}
-		}finally{
-			lock[depth].unlock();
 		}
 	}
 

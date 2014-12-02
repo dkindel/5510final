@@ -33,7 +33,7 @@ public class SequentialHM<K,V> implements HM<K,V>{
 			largestbucketever = table[tabHash].size();
 		}
 
-		if(largestbucketever > 20)
+		if(largestbucketever > 500)
 			resize();
 		return retval;
 	}

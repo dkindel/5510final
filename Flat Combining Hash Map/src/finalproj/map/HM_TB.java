@@ -3,6 +3,7 @@ package finalproj.map;
 
 import java.util.concurrent.atomic.AtomicLong;
 import finalproj.FGHM.FGHM;
+import finalproj.LFHM.LFHM;
 
 import finalproj.fchm.FCHM;
 
@@ -21,9 +22,13 @@ public class HM_TB {
 			System.out.println("Running a Flat-Combining map");
 			map = new FCHM<Integer, String>(init_capacity);
 		}
-		else{
+		else if (map_type == 1){
 			System.out.println("Running a Fine Grained map");
 			map= new FGHM<Integer, String>(init_capacity);
+		}
+		else{
+			System.out.println("Running a Fine Grained map");
+			map= new LFHM<Integer, String>(init_capacity);
 		}
 			
 		
@@ -32,6 +37,7 @@ public class HM_TB {
 		
 		AtomicLong throughput = new AtomicLong(0);
 		HMThread[] threads = new HMThread[NUM_THREADS];
+		long start = System.currentTimeMillis();
 		for(int i = 0; i < NUM_THREADS; i++){
 			threads[i] = new HMThread(map, throughput);
 			threads[i].start();
@@ -45,7 +51,8 @@ public class HM_TB {
 				e.printStackTrace();
 			}
 		}
+		long end = System.currentTimeMillis();
 		
-		System.out.println("Threads finished with: " + throughput.get());
+		System.out.println("Threads finished with: " + throughput.get() + " in " + (end - start));
 	}
 }
