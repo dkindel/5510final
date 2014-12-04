@@ -1,4 +1,4 @@
-package finalproj.fchm;
+package finalproj.FCHM;
 
 import java.util.HashMap;
 import java.util.Iterator;

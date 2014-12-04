@@ -2,11 +2,13 @@ package finalproj.map;
 
 
 import java.util.concurrent.atomic.AtomicLong;
+
+import finalproj.CHM.CHM;
 import finalproj.FGHM.FGHM;
 import finalproj.LFHM.LFHM;
 import finalproj.NBHM.NonBlockingHashMap;
 
-import finalproj.fchm.FCHM;
+import finalproj.FCHM.FCHM;
 
 public class HM_TB {
 	
@@ -27,9 +29,17 @@ public class HM_TB {
 			System.out.println("Running a Fine Grained map");
 			map= new FGHM<Integer, String>(init_capacity);
 		}
-		else{
-			System.out.println("Running a Lock Free map");
+		else if (map_type == 2){
+			System.out.println("Running ConcurrentHashMap");
+			map= new CHM<Integer, String>(init_capacity);
+		}
+		else if (map_type == 3){
+			System.out.println("Running a Non Blocking map (by Cliff Click)");
 			map= new NonBlockingHashMap<Integer, String>(init_capacity);
+		}
+		else{
+			System.out.println("Running a Lock Free map (Split Order)");
+			map= new LFHM<Integer, String>(init_capacity);
 		}
 			
 		

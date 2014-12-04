@@ -1,4 +1,4 @@
-package finalproj.fchm;
+package finalproj.FCHM;
 
 
 
