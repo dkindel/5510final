@@ -1,5 +1,6 @@
 package finalproj.LFHM;
 
+
 import java.util.concurrent.atomic.AtomicMarkableReference;
 
 
@@ -16,7 +17,7 @@ public class BucketList<K, V> {
 		}
 		Node(int key) { // sentinel constructor
 			val= null;
-			this.key = makeSentinelKey(key);
+			this.key = key;
 			this.next = new AtomicMarkableReference<Node>(null, false);
 	    }
 	}
@@ -28,8 +29,8 @@ public class BucketList<K, V> {
 		}
 	}
 	
-	static final int HI_MASK = 0x80000000;
-	static final int MASK = 0x00FFFFFF;
+	static final int HI_MASK = 0x40000000;
+	static final int MASK = 0x3FFFFFFF;
 	Node head;
 	public BucketList(){
 		head = new Node(0);
@@ -40,13 +41,16 @@ public class BucketList<K, V> {
 		head = node;
 	}
 	
+	
+	//The key functions need  a shift right to "not care" about signedness 
+	//when doing calculations.  All this means is there's one less bit to work with.
 	public int makeOrdinaryKey(K key){
-		int code = key.hashCode() & MASK;
-		return Integer.reverse(code | HI_MASK);
+		int code = hash(key) & MASK;
+		return Integer.reverse(code | HI_MASK) >>> 1;
 	}
 
 	public static int makeSentinelKey(int key){
-		return Integer.reverse(key | MASK);
+		return Integer.reverse(key & MASK) >>> 1;
 	}
 
 	public Window find(Node head, int key){
@@ -147,6 +151,20 @@ public class BucketList<K, V> {
 		}
 	}
 	
+
+	private int hash(K key){
+		int hash = key.hashCode();
+		return hash;
+	}
+	
+	
+	public void print(){
+		Node curr = head;
+		while(curr != null){
+			System.out.println("key: " + Integer.toHexString(curr.key) + ", val: " + curr.val);
+			curr = curr.next.getReference();
+		}
+	}
 }
 
 

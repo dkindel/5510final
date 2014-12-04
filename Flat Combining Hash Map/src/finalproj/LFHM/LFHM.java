@@ -13,9 +13,9 @@ public class LFHM<K,V> implements HM<K, V> {
 	
 	@SuppressWarnings("unchecked")
 	public LFHM(int initcap){
-		bucket = (BucketList<K,V>[]) new BucketList[initcap];
+		bucket = (BucketList<K,V>[]) new BucketList[500000];
 		bucket[0] = new BucketList<K,V>();
-		bucketSize = new AtomicInteger(2);
+		bucketSize = new AtomicInteger(initcap);
 		setSize = new AtomicInteger(0);
 	}
 
@@ -28,7 +28,7 @@ public class LFHM<K,V> implements HM<K, V> {
 		}
 		int setSizeNow = setSize.getAndIncrement();
 		int bucketSizeNow = bucketSize.get();
-		if(setSizeNow/bucketSizeNow > 4)
+		if(setSizeNow/bucketSizeNow > 200)
 			bucketSize.compareAndSet(bucketSizeNow, 2* bucketSizeNow);
 		return val;
 	}
@@ -54,8 +54,7 @@ public class LFHM<K,V> implements HM<K, V> {
 
 	@Override
 	public void print() {
-		// TODO Auto-generated method stub
-		
+		bucket[0].print();
 	}
 	
 	private BucketList<K,V> getBucketList(int myBucket){

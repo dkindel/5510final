@@ -49,16 +49,28 @@ public class HMThread extends Thread {
 		t= System.currentTimeMillis();
 		end = t+2000;
 		while(System.currentTimeMillis() < end) {
-			int next = rand.nextInt();
+			int next = rand.nextInt() & 0x3FFFFFFF;
 			int op = throughput % 100;
 			if(op < 10){
-				hashmap.put(next, new Integer(next).toString());
+				String val = hashmap.put(next, new Integer(next).toString());
+				if(val != null){
+					if(Integer.parseInt(val) != next)
+						System.out.println("error in put:  requested: '" + next + "'. received:  '" + val + "'.");
+				}
 			}
 			else if(op == 10){
-				hashmap.remove(next);
+				String val = hashmap.remove(next);
+				if(val != null){
+					if(Integer.parseInt(val) != next)
+						System.out.println("error in remove:  requested: '" + next + "'. received:  '" + val + "'.");
+				}
 			}
 			else{
-				hashmap.get(next);
+				String val = hashmap.get(next);
+				if(val != null){
+					if(Integer.parseInt(val) != next)
+						System.out.println("error in get:  requested: '" + next + "'. received:  '" + val + "'.");
+				}
 			}
 			throughput++;
 			if(System.currentTimeMillis() >= end)
@@ -101,7 +113,7 @@ public class HMThread extends Thread {
 			e.printStackTrace();
 		}
 		if(id == 0) {
-			hashmap.remove(12);
+			//hashmap.remove(12);
 			//hashmap.printList();
 			hashmap.print();
 		}

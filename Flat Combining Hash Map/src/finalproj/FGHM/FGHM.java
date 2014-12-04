@@ -117,7 +117,7 @@ public class FGHM<K,V> implements HM<K,V>{
 	private int hash(K key){
 		int hash = key.hashCode();
 		if (hash < 0) 
-			hash = hash*-1;
+			hash *= -1;
 		return hash;
 	}
 	

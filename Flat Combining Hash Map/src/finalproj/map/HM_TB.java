@@ -27,7 +27,7 @@ public class HM_TB {
 			map= new FGHM<Integer, String>(init_capacity);
 		}
 		else{
-			System.out.println("Running a Fine Grained map");
+			System.out.println("Running a Lock Free map");
 			map= new LFHM<Integer, String>(init_capacity);
 		}
 			
