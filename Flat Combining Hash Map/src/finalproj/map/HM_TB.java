@@ -4,6 +4,7 @@ package finalproj.map;
 import java.util.concurrent.atomic.AtomicLong;
 import finalproj.FGHM.FGHM;
 import finalproj.LFHM.LFHM;
+import finalproj.NBHM.NonBlockingHashMap;
 
 import finalproj.fchm.FCHM;
 
@@ -28,7 +29,7 @@ public class HM_TB {
 		}
 		else{
 			System.out.println("Running a Lock Free map");
-			map= new LFHM<Integer, String>(init_capacity);
+			map= new NonBlockingHashMap<Integer, String>(init_capacity);
 		}
 			
 		
