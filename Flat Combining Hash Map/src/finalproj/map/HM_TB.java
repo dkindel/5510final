@@ -1,6 +1,7 @@
 package finalproj.map;
 
 
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 
 import finalproj.CHM.CHM;
@@ -47,10 +48,12 @@ public class HM_TB {
 		//FGHM<Integer, String> map= new FGHM<Integer, String>(50);
 		
 		AtomicLong throughput = new AtomicLong(0);
+		CyclicBarrier bar = new CyclicBarrier(NUM_THREADS);
+		
 		HMThread[] threads = new HMThread[NUM_THREADS];
 		long start = System.currentTimeMillis();
 		for(int i = 0; i < NUM_THREADS; i++){
-			threads[i] = new HMThread(map, throughput);
+			threads[i] = new HMThread(map, throughput, bar);
 			threads[i].start();
 		}
 		

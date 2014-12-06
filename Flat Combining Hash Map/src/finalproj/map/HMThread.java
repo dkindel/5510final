@@ -1,8 +1,8 @@
 package finalproj.map;
 
 import java.util.Random;
-/*import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;*/
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -13,27 +13,28 @@ public class HMThread extends Thread {
 	private HM<Integer, String> hashmap;
 	private AtomicLong tput;
 	
-	//private static CyclicBarrier bar = new CyclicBarrier(4);
+	private CyclicBarrier bar;
 	
-	public HMThread(HM<Integer, String> map, AtomicLong throughput){
+	public HMThread(HM<Integer, String> map, AtomicLong throughput, CyclicBarrier bar){
 		id = ID_GEN++;
 		hashmap = map;
 		tput = throughput;
+		this.bar = bar;
 	}
 
 	public void run(){
 		
 		long t= System.currentTimeMillis();
-		long end = t+5000;
+		long end = t+10000;
 		Random rand = new Random();
 		int count = 0;
 		while(System.currentTimeMillis() < end) {
 			int next = rand.nextInt();
 			int op = count % 100;
-			if(op < 10){
+			if(op < 35){
 				hashmap.put(next, new Integer(next).toString());
 			}
-			else if(op == 10){
+			else if(op < 70){
 				hashmap.remove(next);
 			}
 			else{
@@ -47,18 +48,18 @@ public class HMThread extends Thread {
 		int throughput = 0;
 		//run for 2s getting measurements
 		t= System.currentTimeMillis();
-		end = t+2000;
+		end = t+5000;
 		while(System.currentTimeMillis() < end) {
 			int next = rand.nextInt() & 0x3FFFFFFF;
 			int op = throughput % 100;
-			if(op < 10){
+			if(op < 5){
 				String val = hashmap.put(next, new Integer(next).toString());
 				if(val != null){
 					if(Integer.parseInt(val) != next)
 						System.out.println("error in put:  requested: '" + next + "'. received:  '" + val + "'.");
 				}
 			}
-			else if(op == 10){
+			else if(op < 10){
 				String val = hashmap.remove(next);
 				if(val != null){
 					if(Integer.parseInt(val) != next)
@@ -73,13 +74,17 @@ public class HMThread extends Thread {
 				}
 			}
 			throughput++;
-			if(System.currentTimeMillis() >= end)
-				System.out.println("tput = " + throughput);
 		}
-		tput.addAndGet(throughput);
+		long finishedIn = System.currentTimeMillis() - t;
+		tput.addAndGet(throughput/5000);
 		
-		System.out.println("Thread " + id + " has finished for time " + (System.currentTimeMillis() - t));
-		
+		try{
+			bar.await();
+		} catch (InterruptedException | BrokenBarrierException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Thread " + id + " has finished for time " + finishedIn);
 /*
 		System.out.println("starting thread " + id);
 		if(id == 0){

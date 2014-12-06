@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Iterator;
+import finalproj.map.HMThread;
 //import java.util.concurrent.locks.ReentrantLock;
 
 import finalproj.map.HM;
@@ -35,19 +36,24 @@ public class FGHM<K,V> implements HM<K,V>{
 	@Override
 	public V put(K key, V val) {
 		V retval = null;
-		
 		int keyhash = hash(key) % lock.length;
 		synchronized(lock[keyhash]){
 			int tabHash = hash(key) % table.length; 
+			long t = System.currentTimeMillis();
 			retval = table[tabHash].put(key, val);
-			if(largestbucketever < table[tabHash].size()){
+			/*if(largestbucketever < table[tabHash].size()){
 				largestbucketever = table[tabHash].size();
-			}
+			}*/
+			/*long time;
+			if((time = System.currentTimeMillis()) > t+2000){
+				System.out.println("error in put! Thread " + ((HMThread)Thread.currentThread()).getThreadId() 
+						+ " went over by " + (time - t) + " in bucket " + keyhash);
+			}*/
+			return retval;
 		}
 
-		if(largestbucketever > 500)
-			resize();
-		return retval;
+		/*if(largestbucketever > 500)
+			resize();*/
 	}
 
 	@Override
@@ -55,7 +61,14 @@ public class FGHM<K,V> implements HM<K,V>{
 		int keyhash = hash(key) % lock.length;
 		synchronized(lock[keyhash]){
 			int tabHash = hash(key) % table.length; 
-			return table[tabHash].remove(key);
+			long t = System.currentTimeMillis();
+			V val = table[tabHash].remove(key);
+			/*long time;
+			if((time = System.currentTimeMillis()) > t+2000){
+				System.out.println("error in remove! Thread " + ((HMThread)Thread.currentThread()).getThreadId() 
+						+ " went over by " + (time - t) + " on key " + keyhash);			
+			}*/
+			return val;
 		}
 	}
 
@@ -64,7 +77,14 @@ public class FGHM<K,V> implements HM<K,V>{
 		int keyhash = hash(key) % lock.length;
 		synchronized(lock[keyhash]){
 			int tabHash = hash(key) % table.length; 
-			return table[tabHash].get(key);
+			long t = System.currentTimeMillis();
+			V val = table[tabHash].get(key);
+			/*long time;
+			if((time = System.currentTimeMillis()) > t+2000){
+				System.out.println("error in get! Thread " + ((HMThread)Thread.currentThread()).getThreadId() 
+						+ " went over by " + (time - t) + " in bucket " + keyhash);
+			}*/
+			return val;
 		}
 	}
 	
