@@ -13,9 +13,9 @@ import finalproj.map.NBHM.NonBlockingHashMap;
 
 public class HM_TB {
 	
-	public static void main(String args[]){
-		int NUM_THREADS = Integer.parseInt(args[0]);
-		int map_type = Integer.parseInt(args[1]);
+	public static void hm_main(String args[]){
+		int map_type = Integer.parseInt(args[0]);
+		int NUM_THREADS = Integer.parseInt(args[1]);
 		int init_capacity = Integer.parseInt(args[2]);
 		System.out.println("Running with " + NUM_THREADS + " threads.");
 		System.out.println("Running with " + init_capacity + " capacity.");

@@ -8,7 +8,7 @@ public class MainFunction {
 	private static final String FCQ    = "FCQueue";
 	private static final String FCNUMA = "FCNumaLock";
 	
-	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
+	public static void numa_main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
 		
 		String lockClass = (args.length==0 ? HCLH : args[0]);
 		int numThreads = (args.length<2 ? THREAD_COUNT : Integer.parseInt(args[1]));

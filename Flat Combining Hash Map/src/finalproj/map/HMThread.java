@@ -46,7 +46,7 @@ public class HMThread extends Thread {
 
 
 		int throughput = 0;
-		//run for 2s getting measurements
+		//run for 5s getting measurements
 		t= System.currentTimeMillis();
 		end = t+5000;
 		while(System.currentTimeMillis() < end) {
@@ -76,7 +76,6 @@ public class HMThread extends Thread {
 			throughput++;
 		}
 		long finishedIn = System.currentTimeMillis() - t;
-		tput.addAndGet(throughput/5000);
 		
 		try{
 			bar.await();
@@ -84,6 +83,7 @@ public class HMThread extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		tput.addAndGet(throughput/5000);
 		System.out.println("Thread " + id + " has finished for time " + finishedIn);
 /*
 		System.out.println("starting thread " + id);
