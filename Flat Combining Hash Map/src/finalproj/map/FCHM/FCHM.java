@@ -1,4 +1,4 @@
-package finalproj.FCHM;
+package finalproj.map.FCHM;
 
 import finalproj.map.HM;
 

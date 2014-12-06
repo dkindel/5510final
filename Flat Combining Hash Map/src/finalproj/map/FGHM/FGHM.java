@@ -1,4 +1,4 @@
-package finalproj.FGHM;
+package finalproj.map.FGHM;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package finalproj.LFHM;
+package finalproj.map.LFHM;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

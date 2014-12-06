@@ -1,4 +1,4 @@
-package finalproj.locks;
+package finalproj.map.locks;
 
 public interface Lock {
 	public boolean lock();

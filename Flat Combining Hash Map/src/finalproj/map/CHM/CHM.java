@@ -1,4 +1,4 @@
-package finalproj.CHM;
+package finalproj.map.CHM;
 
 import java.util.concurrent.ConcurrentHashMap;
 

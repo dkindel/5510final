@@ -1,4 +1,4 @@
-package finalproj.locks;
+package finalproj.map.locks;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

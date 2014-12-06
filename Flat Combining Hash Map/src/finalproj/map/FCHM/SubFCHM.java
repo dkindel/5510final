@@ -1,10 +1,10 @@
-package finalproj.FCHM;
+package finalproj.map.FCHM;
 
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import finalproj.locks.RejectLock;
 import finalproj.map.HM;
+import finalproj.map.locks.RejectLock;
 
 
 public class SubFCHM<K,V> implements HM<K, V>{

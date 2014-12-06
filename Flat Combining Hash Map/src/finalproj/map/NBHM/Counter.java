@@ -1,4 +1,4 @@
-package finalproj.NBHM;
+package finalproj.map.NBHM;
 /*
  * Written by Cliff Click and released to the public domain, as explained at
  * http://creativecommons.org/licenses/publicdomain
@@ -6,8 +6,8 @@ package finalproj.NBHM;
 
 /**
  * A simple high-performance counter.  Merely renames the extended {@link
- * org.cliffc.high_scale_lib.ConcurrentAutoTable} class to be more obvious.
- * {@link org.cliffc.high_scale_lib.ConcurrentAutoTable} already has a decent
+ * finalproj.map.NBHM.cliffc.high_scale_lib.ConcurrentAutoTable} class to be more obvious.
+ * {@link finalproj.map.NBHM.cliffc.high_scale_lib.ConcurrentAutoTable} already has a decent
  * counting API.
  *
  * @since 1.5

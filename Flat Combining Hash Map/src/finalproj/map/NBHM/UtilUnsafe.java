@@ -1,4 +1,4 @@
-package finalproj.NBHM;
+package finalproj.map.NBHM;
 
 import java.lang.reflect.Field;
 import sun.misc.Unsafe;

@@ -4,12 +4,12 @@ package finalproj.map;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 
-import finalproj.CHM.CHM;
-import finalproj.FGHM.FGHM;
-import finalproj.LFHM.LFHM;
-import finalproj.NBHM.NonBlockingHashMap;
+import finalproj.map.CHM.CHM;
+import finalproj.map.FCHM.FCHM;
+import finalproj.map.FGHM.FGHM;
+import finalproj.map.LFHM.LFHM;
+import finalproj.map.NBHM.NonBlockingHashMap;
 
-import finalproj.FCHM.FCHM;
 
 public class HM_TB {
 	

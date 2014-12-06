@@ -1,4 +1,4 @@
-package finalproj.NBHM;
+package finalproj.map.NBHM;
 /*
  * Written by Cliff Click and released to the public domain, as explained at
  * http://creativecommons.org/licenses/publicdomain
