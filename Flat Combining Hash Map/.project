@@ -14,4 +14,41 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src/finalproj/numa/FCNumaLock.java</name>
+			<type>1</type>
+			<location>/home/dave/git/5510/final/Flat Combining Hash Map/src/finalproj/numa/FCNumaLock.java</location>
+		</link>
+		<link>
+			<name>src/finalproj/numa/FCQueue.java</name>
+			<type>1</type>
+			<location>/home/dave/git/5510/final/Flat Combining Hash Map/src/finalproj/numa/FCQueue.java</location>
+		</link>
+		<link>
+			<name>src/finalproj/numa/HCLHLock.java</name>
+			<type>1</type>
+			<location>/home/dave/git/5510/final/Flat Combining Hash Map/src/finalproj/numa/HCLHLock.java</location>
+		</link>
+		<link>
+			<name>src/finalproj/numa/MainFunction.java</name>
+			<type>1</type>
+			<location>/home/dave/git/5510/final/Flat Combining Hash Map/src/finalproj/numa/MainFunction.java</location>
+		</link>
+		<link>
+			<name>src/finalproj/numa/MyLock.java</name>
+			<type>1</type>
+			<location>/home/dave/git/5510/final/Flat Combining Hash Map/src/finalproj/numa/MyLock.java</location>
+		</link>
+		<link>
+			<name>src/finalproj/numa/NativeQueue.java</name>
+			<type>1</type>
+			<location>/home/dave/git/5510/final/Flat Combining Hash Map/src/finalproj/numa/NativeQueue.java</location>
+		</link>
+		<link>
+			<name>src/finalproj/numa/TestThread.java</name>
+			<type>1</type>
+			<location>/home/dave/git/5510/final/Flat Combining Hash Map/src/finalproj/numa/TestThread.java</location>
+		</link>
+	</linkedResources>
 </projectDescription>
