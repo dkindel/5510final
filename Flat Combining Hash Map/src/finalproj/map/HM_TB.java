@@ -17,8 +17,16 @@ public class HM_TB {
 		int map_type = Integer.parseInt(args[0]);
 		int NUM_THREADS = Integer.parseInt(args[1]);
 		int init_capacity = Integer.parseInt(args[2]);
+		int load = Integer.parseInt(args[3]);
+		
 		System.out.println("Running with " + NUM_THREADS + " threads.");
 		System.out.println("Running with " + init_capacity + " capacity.");
+		if(load == 0){
+			System.out.println("Running with 90% get, 5% put, 5% remove.");
+		}
+		else{
+			System.out.println("Running with 34% get, 33% put, 33% remove.");
+		}
 		
 		
 		HM<Integer, String> map;
@@ -51,9 +59,8 @@ public class HM_TB {
 		CyclicBarrier bar = new CyclicBarrier(NUM_THREADS);
 		
 		HMThread[] threads = new HMThread[NUM_THREADS];
-		long start = System.currentTimeMillis();
 		for(int i = 0; i < NUM_THREADS; i++){
-			threads[i] = new HMThread(map, throughput, bar);
+			threads[i] = new HMThread(map, throughput, bar, load);
 			threads[i].start();
 		}
 		
@@ -65,8 +72,7 @@ public class HM_TB {
 				e.printStackTrace();
 			}
 		}
-		long end = System.currentTimeMillis();
 		
-		System.out.println("Threads finished with: " + throughput.get() + " in " + (end - start));
+		System.out.println("Threads finished with: " + throughput.get());
 	}
 }

@@ -12,12 +12,13 @@ public class MainWrapper {
 			newArgs[i-1] = args[i];
 		}
 		//check to make sure the right number of params was used
-		if(args.length != 4){
+		if(args.length != 5){
 			System.err.println("Invalid number of parameters!");
-			System.err.println("The program received " + args.length + " and expected 4");
+			System.err.println("The program received " + args.length + " and expected 5");
 			System.exit(1);
 		}
 		if(test == 0){
+			System.out.println("Running a test on Numa-aware lock");
 			try {
 				MainFunction.numa_main(newArgs);
 			} catch (InstantiationException | IllegalAccessException
