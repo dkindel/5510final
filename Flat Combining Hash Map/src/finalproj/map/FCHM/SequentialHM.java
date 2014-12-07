@@ -7,6 +7,16 @@ import java.util.Map.Entry;
 
 import finalproj.map.HM;
 
+/**
+ * This class is no longer used in this project but I've kept the code in case
+ * that changed. This is a simple Sequential HM implementation, using an array 
+ * of java std hash maps
+ * 
+ * @author dave
+ *
+ * @param <K> the key type
+ * @param <V> the value type
+ */
 public class SequentialHM<K,V> implements HM<K,V>{
 
 	protected HashMap<K,V>[] table; 

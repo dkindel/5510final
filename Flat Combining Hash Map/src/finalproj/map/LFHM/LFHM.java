@@ -4,6 +4,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import finalproj.map.HM;
 
+/**
+ * Most of this code was taken from the textbook, The Art of Multiprocessor 
+ * Progrmaming
+ * @author dave
+ *
+ * @param <K> the key type
+ * @param <V> the value type
+ */
 public class LFHM<K,V> implements HM<K, V> {
 	
 

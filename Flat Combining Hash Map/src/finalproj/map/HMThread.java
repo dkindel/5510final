@@ -6,7 +6,13 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 
 
-
+/**
+ * The Thread class.  Runs the test case for a bit to optimize for the JIT
+ * and then runs the actual tests.  
+ * 
+ * @author dave
+ *
+ */
 public class HMThread extends Thread {
 	public static int ID_GEN;
 	private int id;
@@ -14,8 +20,21 @@ public class HMThread extends Thread {
 	private AtomicLong tput;
 	private int load;
 	
+	//used to block at the end so printing doesn't mess with other threads operations
 	private CyclicBarrier bar;
 	
+	/**
+	 * Constructor for the HMThread.  Sets the id and other global variables for use 
+	 * either between threads or alone in this one
+	 * 
+	 * @param map the hash map DS
+	 * @param throughput used to count the throughput between threads
+	 * @param bar used to block at the end of a threads operation so nothing is 
+	 * 				overrun between them
+	 * @param load specifies what type of load is used in testing.  possibilities are:
+	 * 				90% get, 5% add, 5% remove
+	 * 				34% get, 33% add, 5% remove
+	 */
 	public HMThread(HM<Integer, String> map, AtomicLong throughput, 
 			CyclicBarrier bar, int load){
 		id = ID_GEN++;
@@ -25,6 +44,10 @@ public class HMThread extends Thread {
 		this.load = load;
 	}
 
+	/**
+	 * This method runs the tests for each and every thread and counts how many 
+	 * operations are actually run
+	 */
 	public void run(){
 		if(load == 0){
 
@@ -46,7 +69,7 @@ public class HMThread extends Thread {
 				}
 				count++;
 			}
-			System.out.println("Thread " + id + " has started.");
+			//System.out.println("Thread " + id + " has started.");
 
 
 			int throughput = 0;
@@ -153,6 +176,7 @@ public class HMThread extends Thread {
 			tput.addAndGet(throughput/5000);
 			System.out.println("Thread " + id + " has finished for time " + finishedIn);
 		}
+		//the following is just an example of a small scale test used to test correctness
 /*
 		System.out.println("starting thread " + id);
 		if(id == 0){
@@ -193,6 +217,10 @@ public class HMThread extends Thread {
 		System.out.println("done thread " + id);*/
 	}
 	
+	/**
+	 * returns the thread id for this particular thread
+	 * @return the thread id
+	 */
 	public int getThreadId(){
 		return id;
 	}

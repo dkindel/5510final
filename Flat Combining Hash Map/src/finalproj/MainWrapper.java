@@ -3,6 +3,13 @@ package finalproj;
 import finalproj.map.HM_TB;
 import finalproj.numa.MainFunction;
 
+/**
+ * This wraps up the main functions for Ekta's test on the NUMA lock and
+ * Dave's tests on the Hash Maps
+ * 
+ * @author Dave, Ekta
+ *
+ */
 public class MainWrapper {
 	public static void main(String args[]){
 		int test = Integer.parseInt(args[0]);

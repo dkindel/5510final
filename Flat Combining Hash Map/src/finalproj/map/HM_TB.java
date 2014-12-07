@@ -10,9 +10,19 @@ import finalproj.map.FGHM.FGHM;
 import finalproj.map.LFHM.LFHM;
 import finalproj.map.NBHM.NonBlockingHashMap;
 
-
+/**
+ * Hash Map main function. Runs the tests with the given parameters
+ * 
+ * @author dave
+ *
+ */
 public class HM_TB {
 	
+	/**
+	 * Main function
+	 * 
+	 * @param args the arguments provided to this particular test
+	 */
 	public static void hm_main(String args[]){
 		int map_type = Integer.parseInt(args[0]);
 		int NUM_THREADS = Integer.parseInt(args[1]);

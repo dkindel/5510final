@@ -3,7 +3,14 @@ package finalproj.map.LFHM;
 
 import java.util.concurrent.atomic.AtomicMarkableReference;
 
-
+/**
+ * Most of this code was taken straight from the textbook, The Art of Multiprocessor
+ * Programming
+ * @author dave
+ *
+ * @param <K> the key type
+ * @param <V> the value type
+ */
 public class BucketList<K, V> {
 
 	class Node {

@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Iterator;
-import finalproj.map.HMThread;
 //import java.util.concurrent.locks.ReentrantLock;
 
 import finalproj.map.HM;
 
 
 /**
- * Implements a fine grained hash map
+ * Implements a fine grained hash map.  Locks are used for a single bucket and 
+ * each bucket holds its own sequential hash map implementation
  * @author dave
  */
 public class FGHM<K,V> implements HM<K,V>{
@@ -39,7 +39,7 @@ public class FGHM<K,V> implements HM<K,V>{
 		int keyhash = hash(key) % lock.length;
 		synchronized(lock[keyhash]){
 			int tabHash = hash(key) % table.length; 
-			long t = System.currentTimeMillis();
+			//long t = System.currentTimeMillis();
 			retval = table[tabHash].put(key, val);
 			/*if(largestbucketever < table[tabHash].size()){
 				largestbucketever = table[tabHash].size();
@@ -61,7 +61,7 @@ public class FGHM<K,V> implements HM<K,V>{
 		int keyhash = hash(key) % lock.length;
 		synchronized(lock[keyhash]){
 			int tabHash = hash(key) % table.length; 
-			long t = System.currentTimeMillis();
+			//long t = System.currentTimeMillis();
 			V val = table[tabHash].remove(key);
 			/*long time;
 			if((time = System.currentTimeMillis()) > t+2000){
@@ -77,7 +77,7 @@ public class FGHM<K,V> implements HM<K,V>{
 		int keyhash = hash(key) % lock.length;
 		synchronized(lock[keyhash]){
 			int tabHash = hash(key) % table.length; 
-			long t = System.currentTimeMillis();
+			//long t = System.currentTimeMillis();
 			V val = table[tabHash].get(key);
 			/*long time;
 			if((time = System.currentTimeMillis()) > t+2000){
@@ -88,6 +88,10 @@ public class FGHM<K,V> implements HM<K,V>{
 		}
 	}
 	
+	/**
+	 * Kept the resize code but this actually isn't necessary as the hash maps
+	 * themselves will resize as they're used
+	 */
 	private void resize(){
 		resize(0, table);
 	}
