@@ -129,13 +129,6 @@ public class HCLHLock implements MyLock{
 			return state.get() & CLUSTER_MASK;
 		}
     
-		public void setClusterID(int clusterID) {
-			int oldState, newState;
-			do {
-				oldState = state.get();
-				newState = (oldState & ~CLUSTER_MASK) | clusterID;
-			} while (! state.compareAndSet(oldState, newState));
-		}
     
 		public boolean isSuccessorMustWait() {
 			return (state.get() & SMW_MASK) != 0;

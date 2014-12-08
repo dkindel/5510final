@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 public class FCNumaLock implements MyLock{
 	
@@ -46,7 +45,6 @@ public class FCNumaLock implements MyLock{
 			localFCQueues.add(new AtomicReference <FCQueue>(temp));
 		}
 		
-		FCNode temp = new FCNode();
 //		globalQueueHead = new AtomicReference<FCNode>(temp);
 		globalQueueTail = new AtomicReference<FCNode>(null);
 	}
