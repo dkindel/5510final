@@ -1,3 +1,8 @@
+/* ECE 5510 Final Project
+ * Authors : Ekta Bindlish, Dave Kindel
+ * File Description : HCLH Lock Implementation for NUMA Locks
+ */
+
 package finalproj.numa;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -5,42 +10,41 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HCLHLock implements MyLock {
-  
-	int MAX_CLUSTERS;												//Max number of clusters
-	int delay;														//for testing
+public class HCLHLock implements MyLock{
 	
-	List<AtomicReference<QNode>> localQueues;						//List of local queues, one per cluster
-	AtomicReference<QNode> globalQueue;								//global queue
+	int MAX_CLUSTERS;												
+	//int delay;													
 	
-	ThreadLocal<QNode> currNode = new ThreadLocal<QNode>() {		//current QNode - thread local - CLH
+	List<AtomicReference<QNode>> localQueues;						
+	AtomicReference<QNode> globalQueue;								
+	
+	ThreadLocal<QNode> currNode = new ThreadLocal<QNode>() {		
 		protected QNode initialValue() { 
 			return new QNode(); 
 			};
 		};
 	
-	ThreadLocal<QNode> predNode = new ThreadLocal<QNode>() {		//predecessor QNode - thread local CLH
+	ThreadLocal<QNode> predNode = new ThreadLocal<QNode>() {		
 		protected QNode initialValue() { 
 			return null; 
 		};
 	};
   
-	public HCLHLock(int clusters, int d) {							//constructor 
+	public HCLHLock(int clusters) {							 
 		MAX_CLUSTERS = clusters;					
 		localQueues = new ArrayList<AtomicReference<QNode>>(MAX_CLUSTERS);
-		for (int i = 0; i < MAX_CLUSTERS; i++) {					//add a node for each cluster
+		for (int i = 0; i < MAX_CLUSTERS; i++) {					
 			localQueues.add(new AtomicReference <QNode>());
 		}
 		QNode head = new QNode();
 		globalQueue = new AtomicReference<QNode>(head);
-		delay = d;
+		//delay = d;
 	}
   
-	public void lock() {
+	public void Lock() {
 		QNode myNode = currNode.get();								//get a new qnode
-		//fetch my local queue based on my cluster id
 		AtomicReference<QNode> localQueue = localQueues.get(((TestThread)Thread.currentThread()).getClusterId());
-		// splice my QNode into my local queue at tail
+
 		QNode myPred = null;
 		do {
 			myPred = localQueue.get();
@@ -49,35 +53,37 @@ public class HCLHLock implements MyLock {
 		if (myPred != null) {
 			boolean iOwnLock = myPred.waitForGrantOrClusterMaster();
 			if (iOwnLock) {
-				// I am at head of global queue and have the lock. Save QNode just released by previous leader
+				for(int i = 0;i<10;i++){}
 				predNode.set(myPred);
 				return;
 			}
 		}
-		// I am the local cluster master.
-	//	System.out.println("cluster master: "+ ((TestThread)Thread.currentThread()).getThreadId());
-		if ( delay>0){for(int i = 0;i<delay;i++){}}
+		// I am the cluster master: splice local queue into global queue.
 		
-		// Splice local queue into global queue.
+		//	System.out.println("cluster master: "+ ((TestThread)Thread.currentThread()).getThreadId());
+		for(int i = 0;i<10;i++){}
+
 		QNode localTail = null;
 		do {
 			myPred = globalQueue.get();
 			localTail = localQueue.get();
 		} while(!globalQueue.compareAndSet(myPred, localTail));
+		
 		// inform successor it is the new master
 		localTail.setTailWhenSpliced(true);
+		
 		// wait for predecessor to release lock
 		while (myPred.isSuccessorMustWait()) {};
+		//for(int i = 0;i<10;i++){}
 		// I have the lock. Save QNode just released by previous leader
 		predNode.set(myPred);
 		return;
 	}
   
-	public void unlock() {
+	public void UnLock() {
 		QNode myNode = currNode.get();
-		//set my state to false
 		myNode.setSuccessorMustWait(false);
-		// promote pred node to current
+		//for(int i = 0;i<10;i++){}
 		QNode node = predNode.get();
 		node.unlock();
 		currNode.set(node);
@@ -162,39 +168,6 @@ public class HCLHLock implements MyLock {
 				}
 			} while (! state.compareAndSet(oldState, newState));
 		}
-	} // end QNode
-  
-	// superfluous declarations needed to satisfy lock interface
-/*	public void lockInterruptibly() throws InterruptedException {
-		throw new UnsupportedOperationException();
-	}
-  
-	public boolean tryLock() {
-		throw new UnsupportedOperationException();
-	}
-  
-	public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
-		throw new UnsupportedOperationException();
-	}
-  
-	public Condition newCondition() {
-		throw new UnsupportedOperationException();
-	}
- */  
-	public boolean enqueue(Object e){
-		throw new UnsupportedOperationException();
-	}
-  
-	public Object dequeue(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public boolean _contains(Object e){
-		throw new UnsupportedOperationException();
-	}
-	
-	public void printqueue(){
-		throw new UnsupportedOperationException();
-	}
-	
+	} 
+
 }

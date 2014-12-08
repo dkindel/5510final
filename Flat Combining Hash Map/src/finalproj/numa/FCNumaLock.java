@@ -1,288 +1,261 @@
+/* ECE 5510 Final Project
+ * Authors : Ekta Bindlish, Dave Kindel
+ * File Description : FC-NUMA Lock Implementation for NUMA Locks
+ */
+
 package finalproj.numa;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
-
 public class FCNumaLock implements MyLock{
-	//for each cluster create a PL
-	//for each cluster, threads will try and acquire cluster lock
-	//the thread that gets the lock becomes combiner
-	//the combiner will now create the local queue, and set readyrequests to 0
-	//the combiner will add itself to the tail of the local queue
-	//the combiner will set its globaltail flag to true
-	//the combiner will now splice the local queue to global queue
-	//the combiner will spin on isOwner
-	
-	//how to create the PL
-	//array of FClock
-	//how to create global queue
-	//how to splice
 	
 	final int numClusters;
-	final int delay;	
-	//volatile int current_timestamp;
+	volatile int current_timestamp;
 	
-	List<AtomicReference<CombiningNodeList>> localPLQueues; 	//local publishing lists						
+	List<AtomicReference<FCQueue>>localFCQueues;
 	
-	//AtomicReference<CombiningNode> globalQueueHead;		//global MCS queue
-	AtomicReference<CombiningNode> globalQueueTail;			//
+	AtomicReference<FCNode> globalQueueTail;
 	
-	private ThreadLocal<CombiningNode> combining_node;
+    //AtomicLong[] FCLock;
 	
-	//AtomicInteger FCLock[];
-	
-	
-	FCNumaLock(int c, int d){
+	private ThreadLocal myFCNode = new ThreadLocal() 
+    {
+        @Override
+        protected Object initialValue() {
+            return new FCNode();
+        }
+    };
+    
+	public FCNumaLock(int c){
 		numClusters = c;
-		delay = d;
-		//current_timestamp = 0;
+		current_timestamp = 0;
 		
-		localPLQueues = new ArrayList<AtomicReference<CombiningNodeList>>(numClusters);
-		for (int i = 0; i < numClusters; i++) {					
-			localPLQueues.add(new AtomicReference<CombiningNodeList>());//(new CombiningNode()));
+//		localPLQueues = new ArrayList<AtomicReference<FCNode>>(c);
+//		for (int i = 0; i < c; i++){
+//			localPLQueues.add(new AtomicReference <FCNode>());
+//		}
+		
+		localFCQueues = new ArrayList<AtomicReference<FCQueue>>(c);
+		for (int i = 0; i < c; i++){
+			FCQueue temp = new FCQueue();
+			localFCQueues.add(new AtomicReference <FCQueue>(temp));
 		}
 		
-		combining_node = new ThreadLocal<CombiningNode>(){
-			@Override
-	        protected CombiningNode initialValue() {
-				return new CombiningNode();
-			}
-		};
-		
-		//FCLock = new AtomicInteger[numClusters];
-		
-		CombiningNode head = new CombiningNode();
-		globalQueueTail = new AtomicReference<CombiningNode>(head); 
-		//globalQueueTail = globalQueueHead;
+		FCNode temp = new FCNode();
+//		globalQueueHead = new AtomicReference<FCNode>(temp);
+		globalQueueTail = new AtomicReference<FCNode>(null);
 	}
-	
-    public void lock(){
-        CombiningNode comb_node = (CombiningNode)combining_node.get(); 	//thread local
-        comb_node.requestReady = true;								//ready to be combined
-        int cluster = ((TestThread)Thread.currentThread()).getClusterId();
-        wait_until_fulfilled(comb_node , cluster);
-    }
 
-    public void unlock(){
-    	CombiningNode comb_node = (CombiningNode)combining_node.get(); 	//thread local
-    	if (comb_node.canBeGlobalTail == true) {
-    		while (true) {
-    			if (globalQueueTail.get() == comb_node) {
-    				if (globalQueueTail.compareAndSet(comb_node, null) == true) {
-    					// cleanup CAS succeeded
+	public void Lock(){
+		//FCNode myNode = (FCNode)myFCNode.get();
+		
+		FCNode MyFCNode = (FCNode)myFCNode.get();
+		MyFCNode.canBeGlobalTail = false;
+		//MyFCNode.isOwner = false;
+		MyFCNode.isOwner.set(false);
+		MyFCNode.requestReady = true;
+		
+		int myCluster = ((TestThread)Thread.currentThread()).getClusterId();
+		int ThresHold = 1000;
+		AtomicReference<FCQueue> myFCQ = localFCQueues.get(myCluster);
+		FCQueue myFCQueue = myFCQ.get();
+		
+		//FCNode localHead = myFCQueue.LocalHead;
+		//FCNode localTail = myFCQueue.LocalTail;
+		
+		while(true){
+			if(!MyFCNode.isActive){
+				//insert my item in local pl
+				MyFCNode.isActive = true;
+				MyFCNode.requestReady = true;
+				AddNodeToPL(MyFCNode,myCluster);
+				//System.out.println("added thread: "+ ((TestThread)Thread.currentThread()).getThreadId() );
+			}
+			
+			if(myFCQueue.FCLock.get() == 0){
+				if (myFCQueue.FCLock.compareAndSet(0, 1)){
+					if(MyFCNode.requestReady){
+						//for(int k = 0; k<10000;k++){}
+						//System.out.println("combiner thread: "+ ((TestThread)Thread.currentThread()).getThreadId() );
+						myFCQueue.count++; //increment passing count
+						for (int i = 0; i<32 ; i++){ //for max combining iterations
+							FCNode temp = (localFCQueues.get(myCluster).get()).FCHead.get();//get local pl
+							FCNode tempPred = temp;
+							boolean flag = false;
+							while (temp!= null){
+								if((temp.requestReady) && (temp != MyFCNode)){
+									if (myFCQueue.LocalHead == null){
+										myFCQueue.LocalHead = temp;
+										myFCQueue.LocalTail = temp;
+										temp.GLNext = null; //the first node in the localFClist
+									}else{
+										//System.out.println("combiner thread: "+ ((TestThread)Thread.currentThread()).getThreadId() );
+										myFCQueue.LocalTail.GLNext = temp;
+										myFCQueue.LocalTail = temp;
+									}
+									
+									temp.age = myFCQueue.count;
+									temp.requestReady = false;
+								}else{
+									if(myFCQueue.count - temp.age > ThresHold){
+										if ((temp != MyFCNode))// & (temp != myFCQueue.FCHead))
+										{
+											//System.out.println("cleaner thread: "+ myFCNode +((TestThread)Thread.currentThread()).getThreadId() + " : "+myFCQueue.count+" : " + temp+ temp.age);
+											temp.isActive = false;
+											tempPred = temp.PLNext;
+											flag = true;
+										}
+									}
+								}
+								if (!flag)tempPred = temp;
+								else flag = false;
+								temp = temp.PLNext;
+							}
+						}
+						if (myFCQueue.LocalHead == null){
+							myFCQueue.LocalHead = MyFCNode;
+							myFCQueue.LocalTail = MyFCNode;
+						}else{
+							myFCQueue.LocalTail.GLNext = MyFCNode;
+							myFCQueue.LocalTail = MyFCNode;
+						}
+						
+						MyFCNode.canBeGlobalTail = true;
+						MyFCNode.requestReady = false;
+						
+						FCNode prevTail = globalQueueTail.getAndSet(myFCQueue.LocalTail);
+						if(prevTail != null){
+							prevTail.canBeGlobalTail = false;
+							prevTail.GLNext = myFCQueue.LocalHead;
+						}else{
+							//myFCQueue.LocalHead.isOwner = true;
+							//combiner is local and global head in a lot of cases	
+							((localFCQueues.get(myCluster)).get()).LocalHead.isOwner.set(true);
+							//myFCQueue.LocalHead.isOwner.set(true);// = true;
+						}
+					}
+					
+					myFCQueue.FCLock.set(0);
+				}
+			}
+			if (MyFCNode.requestReady == false){
+				//System.out.println("ready thread: "+ ((TestThread)Thread.currentThread()).getThreadId() );
+				break;
+			}
+		}
+		while(!MyFCNode.isOwner.get()){}//{if (!MyFCNode.isActive) {AddNodeToPL(MyFCNode,myCluster);}}
+		return;
+	}
+		
+	private void AddNodeToPL(FCNode myNode, int myCluster){
+		
+		AtomicReference<FCQueue> myFCQ = localFCQueues.get(myCluster);
+		FCQueue myFCQueue = myFCQ.get();
+		
+		while(true){
+			//FCNode Curr_Head = CurHead.get();
+			FCNode Curr_Head = myFCQueue.FCHead.get();
+			/*while(Curr_Head != null){
+				if(Curr_Head == myNode){
+					//node already exists
+					Curr_Head.isActive = true;
+					Curr_Head.requestReady = true;
+					return;
+				}
+				Curr_Head = Curr_Head.PLNext;
+			}*/
+			//need to create new node in the 
+			Curr_Head = myFCQueue.FCHead.get();
+			myNode.PLNext = Curr_Head;
+			if (Curr_Head  == myFCQueue.FCHead.get()){
+				if(myFCQueue.FCHead.compareAndSet(myNode.PLNext, myNode))
+					return;
+				//if (CurHead.compareAndSet(myNode.PLNext, myNode)){
+				//if (myFCQueue.FCHead_updater.compareAndSet(myFCQueue, myNode.PLNext, myNode))
+				//	return;
+				}
+			}
+		}
+	
+    public void UnLock(){
+    	FCNode myNode = (FCNode)myFCNode.get();
+    	
+    	if (myNode.canBeGlobalTail){
+    		while(true){
+    			if (globalQueueTail.get() == myNode){
+    				//System.out.println("1 t: "+ ((TestThread)Thread.currentThread()).getThreadId());
+    				if(globalQueueTail.compareAndSet(myNode,null)){
+    					myNode.isOwner.set(false);
+    					myNode.canBeGlobalTail = false;
+    					myNode.GLNext = null;
     					break;
     				}
-    			} else {
-    				// lock handoff
-    				if (comb_node.FCnext != null) {
-    					comb_node.FCnext.isOwner = true;
+    			}else{
+    				if(myNode.GLNext != null){
+    					//System.out.println("2 t: "+ ((TestThread)Thread.currentThread()).getThreadId());
+    					myNode.GLNext.isOwner.set(true);// = true;
+    					myNode.isOwner.set(false);
+    					myNode.canBeGlobalTail = false;
+    					myNode.GLNext = null;
     					break;
     				}
     			}
     		}
-    	} else {
-    		// lock handoff
-    		comb_node.FCnext.isOwner = true;
+    	}else{
+    		//System.out.println("3 t: "+ ((TestThread)Thread.currentThread()).getThreadId());
+    		myNode.GLNext.isOwner.set(true);// = true;
+    		myNode.isOwner.set(false);
+    		myNode.GLNext = null;
+    	}
+    	return;
+    }
+    
+    private class FCNode{
+    	FCNode PLNext;
+    	FCNode GLNext;
+    	boolean isActive;
+    	AtomicBoolean isOwner;
+    	boolean requestReady;
+    	int age;
+    	boolean canBeGlobalTail;
+    	
+    	public FCNode(){
+    		PLNext = null;
+    		GLNext = null;
+    		isOwner = new AtomicBoolean(false);
+    		isActive = false;
+    		requestReady = false;
+    		age = 0;
     	}
     }
     
-    final int NUM_ROUNDS_IS_LINKED_CHECK_FREQUENCY = 100;
-  
-    void wait_until_fulfilled(CombiningNode comb_node, int cluster){
-    	int rounds = 0;
-    	AtomicReference<CombiningNodeList> localQueuePL = localPLQueues.get(cluster);	//get local queue for this cluster
-    	CombiningNodeList localQueue = localQueuePL.get();								
+    private class FCQueue{
+    	int count;
     	
-    	while (true)
-        {
-            // check if PR is in PL
-            if ((rounds % NUM_ROUNDS_IS_LINKED_CHECK_FREQUENCY == 0) && (!comb_node.is_linked)){
-                comb_node.is_linked = true;
-                comb_node.requestReady = true;
-                link_in_combining(comb_node,cluster);
-                
-            }
-            if (localQueue.FC_Lock.get() == 0){
-            	if (localQueue.FC_Lock.compareAndSet(0, 1)){
-            		doFlatCombining(comb_node,cluster);
-            		localQueue.FC_Lock.set(0);
-            		while (comb_node.isOwner == false){}
-            		comb_node.requestReady = false;
-            	}
-            }
-            if (!comb_node.requestReady){
-            	if(comb_node.isOwner){
-            		return;
-            	}
-            }
-        }
-    }
-    
-    final int COMBINING_NODE_TIMEOUT = 10000;
-    final int COMBINING_NODE_TIMEOUT_CHECK_FREQUENCY = 100; 
-    final int MAX_COMBINING_ROUNDS = 32;
-    
-    private void doFlatCombining(CombiningNode comb_node, int cluster) {
+    	AtomicInteger FCLock;
+    	//volatile FCNode FCHead;
+    	AtomicReference<FCNode> FCHead;
     	
-    	int combining_rounds = 0;
-       // int num_pushed_items = 0;
-        
-        CombiningNode cur_comb_node = null;
-        CombiningNode last_combining_node =  null;
-        
-        CombiningNode localTail = null;
-        CombiningNode localHead = null;
-        
-        AtomicReference<CombiningNodeList> localQueuePL = localPLQueues.get(cluster);	//get local queue for this cluster
-    	CombiningNodeList localQueue = localQueuePL.get();	
-        
-    	int local_current_timestamp = ++localQueue.current_timestamp;
-        
-        boolean check_timestamps = (local_current_timestamp % COMBINING_NODE_TIMEOUT_CHECK_FREQUENCY == 0);
-        boolean have_work = false;
-
-        while (true){
-        
-       // 	num_pushed_items = 0;
-        	cur_comb_node = localQueue.comb_list_head;	
-        	last_combining_node = cur_comb_node;			
-            have_work = false;
-            
-            while (cur_comb_node != null){					//while i am not null
-            
-                if (!cur_comb_node.requestReady){		//if my request is not valid 
-                
-                    CombiningNode next_node = cur_comb_node.PLnext;			//next node in PL pointed by me
-                    // take the node out if its not the first one
-                    if ((check_timestamps) &&								//cleanup the local FC
-                        (cur_comb_node != localQueue.comb_list_head) &&		//if i am not head
-                        (local_current_timestamp - cur_comb_node.last_request_timestamp > COMBINING_NODE_TIMEOUT)){
-                    
-                        last_combining_node.PLnext = next_node;
-                        cur_comb_node.is_linked = false;
-                    }
-                    cur_comb_node = next_node;
-                    continue;
-                }
-
-                have_work = true;
-                
-                cur_comb_node.last_request_timestamp = local_current_timestamp;
-                
-                if((cur_comb_node.requestReady) && (cur_comb_node != comb_node)) {
-                	if (localHead == null){
-                		localHead = cur_comb_node;	
-                		localTail = cur_comb_node;
-                	}else{
-                		localTail.FCnext = cur_comb_node;
-                		localTail = cur_comb_node;
-                	}
-                	//cur_comb_node.last_request_timestamp = local_current_timestamp;
-                	cur_comb_node.requestReady = false;
-                	last_combining_node = cur_comb_node;
-                    cur_comb_node = cur_comb_node.PLnext;
-                }
-            }
-                
-            combining_rounds++;
-
-            //finished with combining
-            if ((!have_work) || (combining_rounds >= MAX_COMBINING_ROUNDS)){
-            	
-            	//add self to end of local FC queue
-            	localTail.FCnext = comb_node;
-				localTail = comb_node;
-				
-				comb_node.canBeGlobalTail = true;
-				comb_node.requestReady = false;
-				
-				//splice into global queue
-				
-				CombiningNode prevTail;// = globalQueueTail.get();				
-				
-				do{
-					prevTail = globalQueueTail.get();
-				}while (!globalQueueTail.compareAndSet(prevTail, localTail));
-            	
-				if(prevTail != null){
-					prevTail.FCnext = localHead;
-				}else{
-					localHead.isOwner = true;
-				}
-
-            }
-        }
+    	FCNode LocalHead;
+    	FCNode LocalTail;
+    	
+    	//final private AtomicReferenceFieldUpdater FCHead_updater = 
+        //        AtomicReferenceFieldUpdater.newUpdater(FCQueue.class,FCNode.class, "FCHead");
+    	   	
+    	public FCQueue(){
+    		count = 0;
+    		FCLock = new AtomicInteger();
+    		//FCHead = null;
+    		FCHead = new AtomicReference<FCNode>(null);
+    		
+    		LocalHead = null;
+    		LocalTail = null;
+    		    	}
     }
     
-	private void link_in_combining(CombiningNode cn,int cluster){
-		AtomicReference<CombiningNodeList> localQueuePL = localPLQueues.get(cluster);	//get local queue for this cluster
-		//AtomicReference<CombiningNode> localQueue = localPLQueues.get(clusterID);
-		CombiningNodeList localQueue = localQueuePL.get();
-        while (true){
-        	//get current head
-        	//try adding pr to pl
-        	//repeat till successful
-        	
-            // snapshot the list head
-            CombiningNode cur_head = localQueue.comb_list_head;
-            cn.PLnext = cur_head;
-            
-            // try to insert the node
-            if (localQueue.comb_list_head == cur_head){
-                if (localQueue.comb_list_head_updater.compareAndSet(this, cn.PLnext, cn)){
-                    return;
-                }
-            }
-        }
-    } 
-
-    static class CombiningNode
-    {
-        volatile boolean is_linked; 		// whether the PR is in the PL
-        int last_request_timestamp; 		//age of PR
-        CombiningNode PLnext;				//for PL
-        CombiningNode FCnext;
-        volatile boolean requestReady;		//to be combined
-        volatile boolean isOwner;			//has the global lock and can execute CS
-        volatile boolean canBeGlobalTail;
-        CombiningNode()
-        {
-            is_linked = false;
-            PLnext = null;
-            FCnext = null;
-            requestReady = false;
-            last_request_timestamp = 0;
-            isOwner = false;
-            canBeGlobalTail = false;
-        }
-    }
-  
-    static class CombiningNodeList{
-    	AtomicInteger FC_Lock;
-    	volatile int current_timestamp;
-    	//AtomicReference<CombiningNode> PLHead;
-    	volatile CombiningNode comb_list_head;
-        
-        // For compareAndSet on the _req_list_head
-        final private static AtomicReferenceFieldUpdater comb_list_head_updater =
-                AtomicReferenceFieldUpdater.newUpdater(CombiningNodeList.class,CombiningNode.class, "comb_list_head");
-    	CombiningNodeList(){
-    		FC_Lock.set(0);
-    		current_timestamp = 0;
-    		//PLHead = null;
-    		comb_list_head = new CombiningNode();
-    	}
-    }
-    
-    
-	//public void lock(){throw new UnsupportedOperationException();}
-	//public void unlock(){throw new UnsupportedOperationException();}
-	public boolean enqueue(Object e){throw new UnsupportedOperationException();}
-	public Object dequeue(){throw new UnsupportedOperationException();}
-	public boolean _contains(Object e){throw new UnsupportedOperationException();}
-	public void printqueue(){throw new UnsupportedOperationException();}
-}	
+ }

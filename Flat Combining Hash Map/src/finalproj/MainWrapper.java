@@ -26,13 +26,7 @@ public class MainWrapper {
 		}
 		if(test == 0){
 			System.out.println("Running a test on Numa-aware lock");
-			try {
-				MainFunction.numa_main(newArgs);
-			} catch (InstantiationException | IllegalAccessException
-					| ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			MainFunction.main(newArgs);
 		}
 		else{
 			HM_TB.hm_main(newArgs);

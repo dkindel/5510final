@@ -1,31 +1,44 @@
+/* ECE 5510 Final Project
+ * Authors : Ekta Bindlish, Dave Kindel
+ * File Description : Thread Execution for NUMA Locks
+ */
+
 package finalproj.numa;
 
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.BrokenBarrierException;
+
 import javax.swing.Timer;
-import java.util.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 
 public class TestThread extends Thread{
-	private static int ID_GEN = 0;
-	private int id;
-	private int cluster_id;
-	private MyLock lock;
-	private boolean timer10;
-	private long count;
-	private long count_enq;
-	private long count_deq;
-	private long count_cnt;
+	public static int ID_GEN = 0;
 	
-	public TestThread(int cluster, MyLock Lock) {
+	private int id;
+	private int clusterID;
+	private MyLock mylock;
+	private boolean timer5;
+	private int CSType;
+	private int count;
+	private SharedCounter Counter;
+	
+	private AtomicLong throughput;
+	private CyclicBarrier barrier;
+	
+	public TestThread(int clusterid, MyLock lockid, int cs, CyclicBarrier bar, AtomicLong l, SharedCounter c){
 		id = ID_GEN++;
-		cluster_id = cluster;
-		lock = Lock;
-		timer10 = false;
+		clusterID = clusterid;
+		this.mylock = lockid;
+		timer5 = true;
+		CSType = cs;
+		throughput = l;
+		this.barrier = bar;
 		count = 0;
-		count_enq = 0;
-		count_deq = 0;
-		count_cnt = 0;
+		this.Counter = c;
 	}
 	
 	public int getThreadId(){
@@ -33,61 +46,83 @@ public class TestThread extends Thread{
 	}
 	
 	public int getClusterId(){
-		return cluster_id;
+		return clusterID;
 	}
 	
 	@Override
 	public void run() {
-
-		  ActionListener al1 = new ActionListener() {
+		
+		ActionListener al1 = new ActionListener() {
 			  @Override 
 			  public void actionPerformed(ActionEvent event) {
-				  timer10 = true;
 				  count = 0;
-				  count_enq = 0;
-				  count_deq = 0;
-				  count_cnt = 0;
 			  }
 		  };
-		  
 		  
 		  ActionListener al2 = new ActionListener() {
 			  @Override 
 			  public void actionPerformed(ActionEvent event) {
-				  timer10 = false;
-				  //System.out.println("thread id: "+id+" execution count : "+ (count_enq+count_deq));
-				  System.out.println("thread id: "+id+" execution count : "+ count);//(count_enq+count_deq));
+				  timer5 = false;
+				  System.out.println("thread id: "+id+" execution count : "+ count);
+				  //System.out.println(count);//(count_enq+count_deq));
 			  }
 		  };
-		  
+		
 		  Timer timer1 = new Timer(10000, al1);
 		  timer1.setRepeats(false);
-		  Timer timer2 = new Timer(20000, al2);	
+		  Timer timer2 = new Timer(5000, al2);	
 		  timer2.setRepeats(false);
 		  timer1.start();
 		  timer2.start();
-		
-//		  Random r_n = new Random();
-//		  int rand_i = 0;
-		while(true){
-			
-			lock.lock();
-			try{
+
+		if (CSType == 0){
+			while(true){
+				if(!timer5) break;
+				mylock.Lock();
+				try{
+					
+					//empty CS
+				}finally{
+					mylock.UnLock();
+				}
 				count++;
-			}finally{
-				lock.unlock();
 			}
-			/*
-			rand_i= r_n.nextInt();
-			
-			if (rand_i%2 == 0){
-				lock.enqueue(rand_i);
-				count_enq++;
-			}else{
-				lock.dequeue();
-				count_deq++;
-			}*/
-			
+		}else if (CSType == 1){
+			while(true){
+				if(!timer5) break;
+				mylock.Lock();
+				try{
+					//increment counter inside CS;
+					Counter.getAndIncrement();
+				}finally{
+					mylock.UnLock();
+				}
+				count++;
+			}
+		}else{
+			while(true){
+				if(!timer5) break;
+				mylock.Lock();
+				try{
+					//delay inside CS
+					for(int i = 0; i < 100 ; i++){}
+				}finally{
+					mylock.UnLock();
+				}
+				count++;
+			}
+
 		}
+		
+		try{
+			barrier.await();
+		} catch (InterruptedException | BrokenBarrierException e) {
+			e.printStackTrace();
+		}
+		
+		throughput.addAndGet(count/5000);
+		//System.out.println("Thread " + id + " has finished");
+		
 	}
+	
 }

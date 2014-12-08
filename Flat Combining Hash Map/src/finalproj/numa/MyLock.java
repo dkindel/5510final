@@ -1,10 +1,11 @@
+/* ECE 5510 Final Project
+ * Authors : Ekta Bindlish, Dave Kindel
+ * File Description : Lock interface for NUMA Locks
+ */
+
 package finalproj.numa;
 
 public interface MyLock {
-	public void lock();
-	public void unlock();
-	public boolean enqueue(Object e);
-	public Object dequeue();
-	public boolean _contains(Object e);
-	public void printqueue();
+	public void Lock();
+	public void UnLock();
 }
